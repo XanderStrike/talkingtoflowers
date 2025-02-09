@@ -3,31 +3,22 @@ function renderPost(post) {
     const postElement = document.createElement('div');
     postElement.classList.add('post');
 
-    // Add image
+    // Add image with timestamp and tags as alt text
     if (post.image_src) {
         const img = document.createElement('img');
         img.src = post.image_src;
+        
+        // Build alt text from timestamp and tags
+        let altText = [];
+        if (post.timestamp) {
+            altText.push(`Posted on: ${post.timestamp}`);
+        }
+        if (post.tag && post.tag.length > 0) {
+            altText.push(`Tags: ${post.tag.join(', ')}`);
+        }
+        img.alt = altText.join(' | ');
+        
         postElement.appendChild(img);
-    }
-
-    // Add timestamp
-    if (post.timestamp) {
-        const timestamp = document.createElement('div');
-        timestamp.classList.add('timestamp');
-        timestamp.textContent = `Posted on: ${post.timestamp}`;
-        postElement.appendChild(timestamp);
-    }
-
-    // Add tags
-    if (post.tag && post.tag.length > 0) {
-        const tagsContainer = document.createElement('div');
-        tagsContainer.classList.add('tags');
-        post.tag.forEach(tagText => {
-            const tag = document.createElement('span');
-            tag.textContent = tagText;
-            tagsContainer.appendChild(tag);
-        });
-        postElement.appendChild(tagsContainer);
     }
 
     // Add caption
