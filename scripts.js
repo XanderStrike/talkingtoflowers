@@ -58,8 +58,8 @@ async function loadPosts() {
         // Get the container for posts
         const postsContainer = document.getElementById('posts-container');
 
-        // Sort dates in descending order
-        const sortedDates = Object.keys(groupedPosts).sort().reverse();
+        // Sort dates in ascending order
+        const sortedDates = Object.keys(groupedPosts).sort();
 
         // Render posts grouped by date
         sortedDates.forEach(dateKey => {
