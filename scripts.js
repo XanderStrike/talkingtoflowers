@@ -69,6 +69,7 @@ async function loadPosts() {
             const date = new Date(dateKey);
             const dateHeader = document.createElement('div');
             dateHeader.classList.add('date-header');
+            dateHeader.id = `date-${dateKey}`;
             dateHeader.textContent = date.toLocaleDateString('en-US', {
                 year: 'numeric',
                 month: 'short',
@@ -85,6 +86,8 @@ async function loadPosts() {
         
         // Observe all images after they're added to the DOM
         observeImages();
+        // Observe date headers
+        observeDateHeaders();
     } catch (error) {
         console.error('Error loading posts:', error);
         const postsContainer = document.getElementById('posts-container');
@@ -93,7 +96,18 @@ async function loadPosts() {
 }
 
 // Load posts when the page loads
-window.onload = loadPosts;
+window.onload = async () => {
+    await loadPosts();
+    
+    // Check if there's a date in the URL and scroll to it
+    const hash = window.location.hash;
+    if (hash && hash.startsWith('#date-')) {
+        const element = document.querySelector(hash);
+        if (element) {
+            element.scrollIntoView();
+        }
+    }
+};
 
 // Set up lazy loading
 const imageObserver = new IntersectionObserver((entries, observer) => {
@@ -132,3 +146,27 @@ mutationObserver.observe(document.body, {
     childList: true,
     subtree: true
 });
+
+// Set up date header observer
+const dateHeaderObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            const dateId = entry.target.id;
+            // Update URL without scrolling
+            history.replaceState(null, null, `#${dateId}`);
+        }
+    });
+}, {
+    rootMargin: '-50% 0px', // Trigger when header is in middle of viewport
+    threshold: 0
+});
+
+// Function to observe date headers
+function observeDateHeaders() {
+    document.querySelectorAll('.date-header').forEach(header => {
+        dateHeaderObserver.observe(header);
+    });
+}
+
+// Add date header observation after posts are loaded
+document.addEventListener('DOMContentLoaded', observeDateHeaders);
