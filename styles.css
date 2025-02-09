@@ -53,6 +53,15 @@ h1 {
     font-size: 0.9em;
     color: #333;
 }
+
+.lazy {
+    opacity: 0;
+    transition: opacity 0.3s ease-in;
+}
+
+img:not(.lazy) {
+    opacity: 1;
+}
 .date-header {
     color: #888;
     font-size: 1.2em;
