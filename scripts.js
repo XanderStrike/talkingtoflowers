@@ -6,7 +6,9 @@ function renderPost(post) {
     // Add image with timestamp and tags as alt text
     if (post.image_src) {
         const img = document.createElement('img');
-        img.src = post.image_src;
+        img.setAttribute('data-src', post.image_src);
+        img.classList.add('lazy');
+        img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; // Tiny transparent placeholder
         
         // Build alt text from timestamp and tags
         let altText = [];
@@ -89,3 +91,41 @@ async function loadPosts() {
 
 // Load posts when the page loads
 window.onload = loadPosts;
+
+// Set up lazy loading
+const imageObserver = new IntersectionObserver((entries, observer) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            const img = entry.target;
+            img.src = img.dataset.src;
+            img.classList.remove('lazy');
+            observer.unobserve(img);
+        }
+    });
+}, {
+    rootMargin: '50px 0px', // Start loading 50px before they enter viewport
+    threshold: 0.1
+});
+
+// Observe all lazy images after posts are rendered
+function observeImages() {
+    document.querySelectorAll('img.lazy').forEach(img => {
+        imageObserver.observe(img);
+    });
+}
+
+// Add mutation observer to watch for new images
+const mutationObserver = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+        mutation.addedNodes.forEach((node) => {
+            if (node.nodeType === 1 && node.tagName === 'IMG' && node.classList.contains('lazy')) {
+                imageObserver.observe(node);
+            }
+        });
+    });
+});
+
+mutationObserver.observe(document.body, {
+    childList: true,
+    subtree: true
+});
