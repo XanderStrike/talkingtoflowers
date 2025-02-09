@@ -53,13 +53,41 @@ async function loadPosts() {
         // Parse the JSON data
         const posts = await response.json();
 
+        // Group posts by date
+        const groupedPosts = {};
+        posts.forEach(post => {
+            const date = new Date(post.timestamp);
+            const dateKey = date.toISOString().split('T')[0];
+            if (!groupedPosts[dateKey]) {
+                groupedPosts[dateKey] = [];
+            }
+            groupedPosts[dateKey].push(post);
+        });
+
         // Get the container for posts
         const postsContainer = document.getElementById('posts-container');
 
-        // Render each post
-        posts.forEach(post => {
-            const postElement = renderPost(post);
-            postsContainer.appendChild(postElement);
+        // Sort dates in descending order
+        const sortedDates = Object.keys(groupedPosts).sort().reverse();
+
+        // Render posts grouped by date
+        sortedDates.forEach(dateKey => {
+            // Create date header
+            const date = new Date(dateKey);
+            const dateHeader = document.createElement('div');
+            dateHeader.classList.add('date-header');
+            dateHeader.textContent = date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: '2-digit'
+            }).toUpperCase();
+            postsContainer.appendChild(dateHeader);
+
+            // Render posts for this date
+            groupedPosts[dateKey].forEach(post => {
+                const postElement = renderPost(post);
+                postsContainer.appendChild(postElement);
+            });
         });
     } catch (error) {
         console.error('Error loading posts:', error);
