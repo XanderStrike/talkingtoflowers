@@ -55,8 +55,7 @@ for filename in os.listdir(html_folder):
             # Create a dictionary for the post
             post = {
                 'image_src': img_src,
-                'timestamp': timestamp_str,  # Keep the original timestamp string for JSON output
-                'timestamp_parsed': timestamp.isoformat() if timestamp else None,  # Add parsed timestamp for sorting
+                'timestamp': timestamp.isoformat() if timestamp else None,  # Store as ISO format string
                 **span_data,  # Unpack the span data into the post dictionary
                 'caption': caption
             }
@@ -64,12 +63,8 @@ for filename in os.listdir(html_folder):
             # Add the post to the list of posts
             posts.append(post)
 
-# Sort the posts by the parsed timestamp
-posts.sort(key=lambda x: parser.isoparse(x['timestamp_parsed']) if x['timestamp_parsed'] else datetime.min)
-
-# Remove the parsed timestamp from the final JSON output (optional)
-for post in posts:
-    post.pop('timestamp_parsed', None)
+# Sort the posts by timestamp
+posts.sort(key=lambda x: parser.isoparse(x['timestamp']) if x['timestamp'] else datetime.min)
 
 # Convert the list of posts to a JSON object
 json_output = json.dumps(posts, indent=4)
