@@ -82,6 +82,9 @@ async function loadPosts() {
                 postsContainer.appendChild(postElement);
             });
         });
+        
+        // Observe all images after they're added to the DOM
+        observeImages();
     } catch (error) {
         console.error('Error loading posts:', error);
         const postsContainer = document.getElementById('posts-container');
