@@ -149,11 +149,30 @@ mutationObserver.observe(document.body, {
 
 // Set up date header observer
 const dateHeaderObserver = new IntersectionObserver((entries) => {
+    // Get all date headers and find the first three
+    const dateHeaders = Array.from(document.querySelectorAll('.date-header'));
+    const firstHeader = dateHeaders[0];
+    const isAfterThirdPost = () => {
+        const visibleHeaders = dateHeaders.filter(header => {
+            const rect = header.getBoundingClientRect();
+            return rect.top < window.innerHeight / 2;
+        });
+        return visibleHeaders.length > 3;
+    };
+    
     entries.forEach(entry => {
-        if (entry.isIntersecting) {
+        if (entry.isIntersecting && isAfterThirdPost()) {
             const dateId = entry.target.id;
-            // Update URL without scrolling
-            history.replaceState(null, null, `#${dateId}`);
+            const currentHash = window.location.hash;
+            // Only update if it's actually a different date
+            if (currentHash !== `#${dateId}`) {
+                history.replaceState(null, null, `#${dateId}`);
+            }
+        } else if (entry.target === firstHeader && !entry.isIntersecting && entry.boundingClientRect.top > 0) {
+            // If we're above the first header, clear the hash only if we have one
+            if (window.location.hash) {
+                history.replaceState(null, null, window.location.pathname);
+            }
         }
     });
 }, {
